@@ -87,3 +87,77 @@ overlayVacancy.addEventListener('click', event => {
     overlayVacancy.classList.remove('overlay_active');
   }
 });
+
+//Вывод карточек
+const createCard = ({ id, title, compensation, workSchedule, employer, address, description, date }) => {
+  const card = document.createElement('li');
+  card.className = 'result__item';
+  card.insertAdjacentHTML('afterbegin', `
+    <article class="vacancy">
+      <h2 class="vacancy__title">
+        <a class="vacancy__open-modal" href="#" data-vacancy="${id}">${title}</a>
+      </h2>
+      <p class="vacancy__compensation">${compensation}</p>
+      <p class="vacancy__work-schedule">${workSchedule}</p>
+      <div class="vacancy__employer">
+        <p class="vacancy__employer-title">${employer}</p>
+        <p class="vacancy__employer-address">${address}</p>
+      </div>
+      <p class="vacancy__description">${description}</p>
+      <p class="vacancy__date">
+        <time datetime="${date}">${date}</time>
+      </p>
+      <div class="vacancy__wrapper-btn">
+        <a class="vacancy__response vacancy__open-modal" href="#" data-vacancy="${id}">Откликнуться</a>
+        <button class="vacancy__contacts">Показать контакты</button>
+      </div>
+    </article>
+  `);
+  return card;
+};
+
+const renderCards = data => {
+  resultList.textContent = '';
+  const cards = data.map(createCard);
+  resultList.append(...cards);
+};
+
+const getData = ({ search } = {}) => {
+  if (search) {
+    return fetch(`http://localhost:3000/api/vacancy?search=${search}`).then(response => response.json());
+  }
+  return fetch('http://localhost:3000/api/vacancy').then(response => response.json());
+};
+
+const formSearch = document.querySelector('.bottom__search');
+const found = document.querySelector('.found');
+
+const declOfNum = (n, titles) => n + ' ' + titles[n % 10 === 1 && n % 100 !== 11 ?
+  0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2];
+
+formSearch.addEventListener('submit', async event => {
+  event.preventDefault();
+  const textSearch = formSearch.search.value.trim();
+  if (textSearch.length > 2) {
+    formSearch.search.style.borderColor = '';
+    const data = await getData({ search: textSearch });
+    renderCards(data);
+    formSearch.reset();
+    found.removeAttribute('style');
+    const founds = declOfNum(data.length, ['вакансия', 'вакансии', 'вакансий']);
+    found.innerHTML = `${founds} &laquo;<span class="found__item">${textSearch}</span>&raquo;`;
+  } else {
+    formSearch.search.style.borderColor = '#ff0000';
+    setTimeout(() => {
+      formSearch.search.style.borderColor = '';
+    }, 2000);
+  }
+});
+
+const init = async () => {
+  const data = await getData();
+  found.textContent = declOfNum(data.length, ['вакансия', 'вакансии', 'вакансий']) + ' в Вашем городе';
+  renderCards(data);
+};
+
+init();
