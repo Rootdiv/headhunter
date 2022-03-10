@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
 // импорт стандартных библиотек Node.js
-const { existsSync, readFileSync, writeFileSync } = require('fs');
-const { createServer } = require('http');
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { createServer } from 'http';
 
 // файл для базы данных
+// eslint-disable-next-line no-undef
 const DB = process.env.DB || './db.json';
 // номер порта, на котором будет запущен сервер
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 3000;
 // префикс URI для всех методов приложения
 const URI = '/api/vacancy';
@@ -18,24 +20,24 @@ class ApiError extends Error {
   }
 }
 
-
-function getVacancyList(params = {}) {
+const getVacancyList = (params = {}) => {
   const vacancy = JSON.parse(readFileSync(DB) || '[]');
   if (params.search) {
     const search = params.search.trim().toLowerCase();
+    const skills = vacancy.skills.toLowerCase();
     return vacancy.filter(data => [
       data.title.toLowerCase(),
       data.employer.toLowerCase(),
       data.description.toLowerCase(),
-      ...data.skills
+      ...skills
     ]
       .some(str => str.toLowerCase().includes(search))
     );
   }
   return vacancy;
-}
+};
 
-function getStartVacancyList({ country, city, search }) {
+const getStartVacancyList = ({ country, city, search }) => {
   if (city) {
     return getVacancyList().filter(item => item.address.toLowerCase() === city.toLowerCase());
   }
@@ -45,26 +47,26 @@ function getStartVacancyList({ country, city, search }) {
   }
 
   return getVacancyList({ search }).filter(item => item.country.toLowerCase() === 'россия');
-}
+};
 
-function getVacancyAddressList(address) {
-  if (!address) return getVacancyList();
-  const vacancy = JSON.parse(readFileSync(DB) || '[]');
-  if (!vacancy) throw new ApiError(404, { message: 'Address Not Found' });
-  return vacancy.filter(item => item.address === address);
-}
+// const getVacancyAddressList = address => {
+//   if (!address) return getVacancyList();
+//   const vacancy = JSON.parse(readFileSync(DB) || '[]');
+//   if (!vacancy) throw new ApiError(404, { message: 'Address Not Found' });
+//   return vacancy.filter(item => item.address === address);
+// }
 
-function getVacancy(itemId) {
+const getVacancy = itemId => {
   const vacancy = getVacancyList().find(({ id }) => id === itemId);
   if (!vacancy) throw new ApiError(404, { message: 'Vacancy Not Found' });
   return vacancy;
-}
+};
 
 // создаём новый файл с базой данных, если он не существует
 if (!existsSync(DB)) writeFileSync(DB, '[]', { encoding: 'utf8' });
 
 // создаём HTTP сервер, переданная функция будет реагировать на все запросы к нему
-module.exports = createServer(async (req, res) => {
+export default createServer(async (req, res) => {
   // req - объект с информацией о запросе, res - объект для управления отправляемым ответом
 
   // этот заголовок ответа указывает, что тело ответа будет в JSON формате
@@ -139,6 +141,7 @@ module.exports = createServer(async (req, res) => {
 })
   // выводим инструкцию, как только сервер запустился...
   .on('listening', () => {
+    // eslint-disable-next-line no-undef
     if (process.env.NODE_ENV !== 'test') {
       console.log(`Сервер запущен. Вы можете использовать его по адресу http://localhost:${PORT}`);
       console.log('Нажмите CTRL+C, чтобы остановить сервер');
