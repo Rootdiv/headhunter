@@ -8,7 +8,7 @@ import { createServer } from 'http';
 const DB = process.env.DB || './db.json';
 // номер порта, на котором будет запущен сервер
 // eslint-disable-next-line no-undef
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9123;
 // префикс URI для всех методов приложения
 const URI = '/api/vacancy';
 

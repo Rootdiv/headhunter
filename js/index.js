@@ -18,17 +18,17 @@ const searchPeriod = document.getElementById('search_period');
 let data = [];
 
 const getData = ({ search, id, country, city } = {}) => {
-  let url = `http://localhost:3000/api/vacancy/${id ? id : ''}`;
+  let url = `/api/vacancy/${id ? id : ''}`;
   if (search) {
-    url = `http://localhost:3000/api/vacancy?search=${search}`;
+    url = `/api/vacancy?search=${search}`;
   }
 
   if (city) {
-    url = `http://localhost:3000/api/vacancy?city=${city}`;
+    url = `/api/vacancy?city=${city}`;
   }
 
   if (country) {
-    url = `http://localhost:3000/api/vacancy?country=${country}`;
+    url = `/api/vacancy?country=${country}`;
   }
 
   return fetch(url).then(response => response.json());
