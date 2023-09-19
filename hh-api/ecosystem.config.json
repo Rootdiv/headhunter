@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "hh-js",
+      "script": "index.js",
+      "watch": "index.js"
+    }
+  ]
+}
