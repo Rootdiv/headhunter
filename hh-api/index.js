@@ -24,13 +24,13 @@ const getVacancyList = (params = {}) => {
   const vacancy = JSON.parse(readFileSync(DB) || '[]');
   if (params.search) {
     const search = params.search.trim().toLowerCase();
-    return vacancy.filter(data => [
-      data.title.toLowerCase(),
-      data.employer.toLowerCase(),
-      data.description.toLowerCase(),
-      ...data.skills
-    ]
-      .some(str => str.toLowerCase().includes(search))
+    return vacancy.filter(data =>
+      [
+        data.title.toLowerCase(),
+        data.employer.toLowerCase(),
+        data.description.toLowerCase(),
+        ...data.skills,
+      ].some(str => str.toLowerCase().includes(search)),
     );
   }
   return vacancy;
@@ -65,7 +65,7 @@ const getVacancy = itemId => {
 if (!existsSync(DB)) writeFileSync(DB, '[]', { encoding: 'utf8' });
 
 // создаём HTTP сервер, переданная функция будет реагировать на все запросы к нему
-export default createServer(async (req, res) => {
+createServer(async (req, res) => {
   // req - объект с информацией о запросе, res - объект для управления отправляемым ответом
 
   // этот заголовок ответа указывает, что тело ответа будет в JSON формате
@@ -105,7 +105,6 @@ export default createServer(async (req, res) => {
     for (const piece of query.split('&')) {
       const [key, value] = piece.split('=');
       queryParams[key] = value ? decodeURIComponent(value) : '';
-
     }
   }
 
@@ -115,7 +114,6 @@ export default createServer(async (req, res) => {
       if (uri === '' || uri === '/') {
         // /api/vacancy
         if (req.method === 'GET') return getStartVacancyList(queryParams);
-
       } else {
         // /api/vacancy/{id}
         // параметр {id} из URI запроса
@@ -141,11 +139,13 @@ export default createServer(async (req, res) => {
   // выводим инструкцию, как только сервер запустился...
   .on('listening', () => {
     // eslint-disable-next-line no-undef
-    if (process.env.NODE_ENV !== 'test') {
+    if (process.env.PROD !== 'true') {
       console.log(`Сервер запущен. Вы можете использовать его по адресу http://localhost:${PORT}`);
       console.log('Нажмите CTRL+C, чтобы остановить сервер');
       console.log('Доступные методы:');
-      console.log(`GET ${URI} - получить список вакансий, в query параметр search можно передать поисковый запрос`);
+      console.log(
+        `GET ${URI} - получить список вакансий, в query параметр search можно передать поисковый запрос`,
+      );
       console.log(`GET ${URI}/{id} - получить вакансию по его ID`);
     }
   })

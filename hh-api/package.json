@@ -1,5 +1,5 @@
 {
-  "name": "crm-backend",
+  "name": "hh-api",
   "version": "1.0.0",
   "description": "Перед запуском убедитесь, что вы установили Node.js версии 16 или выше.",
   "main": "index.js",
