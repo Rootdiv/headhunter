@@ -18,7 +18,7 @@ const searchPeriod = document.getElementById('search_period');
 let data = [];
 
 const getData = ({ search, id, country, city } = {}) => {
-  let host = '';
+  let host = 'https://api.rootdiv.ru/hh';
   if (location.port === '5500') {
     host = 'http://localhost:9123';
   }
@@ -38,13 +38,27 @@ const getData = ({ search, id, country, city } = {}) => {
   return fetch(url).then(response => response.json());
 };
 
-const declOfNum = (n, titles) => n + ' ' +
-  titles[n % 10 === 1 && n % 100 !== 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2];
+const declOfNum = (num, words) =>
+  num +
+  ' ' +
+  words[
+    num % 100 > 4 && num % 100 < 20 ? 2 : [2, 0, 1, 1, 1, 2][num % 10 < 5 ? Math.abs(num) % 10 : 5]
+  ];
 
-const createCard = ({ id, title, compensation, workSchedule, employer, address, description, date }) => {
+const createCard = ({
+  id,
+  title,
+  compensation,
+  workSchedule,
+  employer,
+  address,
+  description,
+  date,
+}) => {
   const card = document.createElement('li');
   card.className = 'result__item';
-  card.insertAdjacentHTML('afterbegin',
+  card.insertAdjacentHTML(
+    'afterbegin',
     `<article class="vacancy">
       <h2 class="vacancy__title">
         <a class="vacancy__open-modal" href="#" data-vacancy="${id}">${title}</a>
@@ -82,15 +96,15 @@ const filterData = () => {
 
 const sortData = () => {
   switch (orderBy.value) {
-  case 'down':
-    data.sort((a, b) => (a.minCompensation > b.minCompensation ? 1 : -1));
-    break;
-  case 'up':
-    data.sort((a, b) => (b.minCompensation > a.minCompensation ? 1 : -1));
-    break;
-  default:
-    data.sort((a, b) => (new Date(a.date).getTime() > new Date(b.date).getTime() ? 1 : -1));
-    break;
+    case 'down':
+      data.sort((a, b) => (a.minCompensation > b.minCompensation ? 1 : -1));
+      break;
+    case 'up':
+      data.sort((a, b) => (b.minCompensation > a.minCompensation ? 1 : -1));
+      break;
+    default:
+      data.sort((a, b) => (new Date(a.date).getTime() > new Date(b.date).getTime() ? 1 : -1));
+      break;
   }
 
   return filterData();
@@ -159,7 +173,7 @@ const cityHandler = () => {
     if (target.classList.contains('city__link')) {
       const hash = new URL(target.href).hash.substring(1);
       const option = {
-        [hash]: target.textContent
+        [hash]: target.textContent,
       };
       data = await getData(option);
       const newData = sortData();
@@ -170,7 +184,16 @@ const cityHandler = () => {
   });
 };
 
-const createModal = ({ title, compensation, employer, employment, address, description, experience, skills }) => {
+const createModal = ({
+  title,
+  compensation,
+  employer,
+  employment,
+  address,
+  description,
+  experience,
+  skills,
+}) => {
   const modal = document.createElement('div');
   modal.className = 'modal';
 
